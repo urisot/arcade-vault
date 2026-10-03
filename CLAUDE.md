@@ -13,6 +13,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npx tsc --noEmit` — typecheck (no `typecheck` script exists)
 - No test runner is configured. There is no way to run a single test yet.
 
+## Skills
+usa siempre frontend-design cuando requeras hacer interfaces de usuario
+
 ## Stack and layout
 
 - Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS v4 via `@tailwindcss/postcss`.
