@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 /* ===== ARCADE VAULT — theme ===== */
 :root {
   --bg: #0a0a0f;
@@ -950,14 +948,3 @@ a { color: inherit; text-decoration: none; }
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 @keyframes spinpix { to { transform: rotate(360deg); } }
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-ink: var(--ink);
-  --color-cyan: var(--cyan);
-  --color-magenta: var(--magenta);
-  --color-yellow: var(--yellow);
-  --color-green: var(--green);
-  --font-pixel: var(--pixel);
-  --font-mono: var(--mono);
-}
