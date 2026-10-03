@@ -1,6 +1,6 @@
 # SPEC 01 — MVP de pantallas visuales de Arcade Vault
 
-> **Estado:** Aprobado
+> **Estado:** implementado
 > **Depende de:** ninguna
 > **Fecha:** 2026-10-03
 > **Objetivo:** Construir en Next.js las pantallas del template de Arcade Vault como parte visual, sin lógica de juego.
