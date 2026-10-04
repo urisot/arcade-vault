@@ -10,7 +10,8 @@ export default function Nav() {
   const { user, signOut } = useSessionUser();
   const [open, setOpen] = useState(false);
 
-  const isLibrary = pathname === "/" || pathname.startsWith("/juegos");
+  const isHome = pathname === "/";
+  const isLibrary = pathname === "/games" || pathname.startsWith("/juegos");
   const isHallOfFame = pathname.startsWith("/salon");
   const isAuth = pathname.startsWith("/login");
 
@@ -26,7 +27,8 @@ export default function Nav() {
           </div>
         </Link>
         <div className="links">
-          <Link href="/" className={isLibrary ? "active" : ""}>Biblioteca</Link>
+          <Link href="/" className={isHome ? "active" : ""}>Inicio</Link>
+          <Link href="/games" className={isLibrary ? "active" : ""}>Biblioteca</Link>
           <Link href="/salon" className={isHallOfFame ? "active" : ""}>Salón de la Fama</Link>
         </div>
         <div className="spacer"></div>
@@ -56,7 +58,8 @@ export default function Nav() {
       ></div>
       <aside className={"av-mobile-panel" + (open ? " open" : "")}>
         <div className="pixel neon-cyan" style={{ fontSize: 11, marginBottom: 16 }}>MENÚ</div>
-        <Link href="/" className={isLibrary ? "active" : ""} onClick={closeMenu}>Biblioteca</Link>
+        <Link href="/" className={isHome ? "active" : ""} onClick={closeMenu}>Inicio</Link>
+        <Link href="/games" className={isLibrary ? "active" : ""} onClick={closeMenu}>Biblioteca</Link>
         <Link href="/salon" className={isHallOfFame ? "active" : ""} onClick={closeMenu}>Salón de la Fama</Link>
         <Link href="/login" className={isAuth ? "active" : ""} onClick={closeMenu}>
           {user ? "Cuenta" : "Iniciar Sesión"}
