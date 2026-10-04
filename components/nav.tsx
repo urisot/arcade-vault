@@ -13,6 +13,7 @@ export default function Nav() {
   const isHome = pathname === "/";
   const isLibrary = pathname === "/games" || pathname.startsWith("/juegos");
   const isHallOfFame = pathname.startsWith("/salon");
+  const isAbout = pathname === "/acerca";
   const isAuth = pathname.startsWith("/login");
 
   const closeMenu = () => setOpen(false);
@@ -30,6 +31,7 @@ export default function Nav() {
           <Link href="/" className={isHome ? "active" : ""}>Inicio</Link>
           <Link href="/games" className={isLibrary ? "active" : ""}>Biblioteca</Link>
           <Link href="/salon" className={isHallOfFame ? "active" : ""}>Salón de la Fama</Link>
+          <Link href="/acerca" className={isAbout ? "active" : ""}>Acerca de</Link>
         </div>
         <div className="spacer"></div>
         <div className="coin-counter">
@@ -61,6 +63,7 @@ export default function Nav() {
         <Link href="/" className={isHome ? "active" : ""} onClick={closeMenu}>Inicio</Link>
         <Link href="/games" className={isLibrary ? "active" : ""} onClick={closeMenu}>Biblioteca</Link>
         <Link href="/salon" className={isHallOfFame ? "active" : ""} onClick={closeMenu}>Salón de la Fama</Link>
+        <Link href="/acerca" className={isAbout ? "active" : ""} onClick={closeMenu}>Acerca de</Link>
         <Link href="/login" className={isAuth ? "active" : ""} onClick={closeMenu}>
           {user ? "Cuenta" : "Iniciar Sesión"}
         </Link>

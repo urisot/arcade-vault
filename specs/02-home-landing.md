@@ -1,6 +1,6 @@
 # SPEC 02 — Landing page de Arcade Vault en `/`
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-03
 > **Objetivo:** Convertir `/` en la landing page del template y mover la biblioteca a `/games`.
