@@ -6,7 +6,13 @@ import GameCard from "@/components/library/game-card";
 
 type CatFilter = (typeof CATS)[number];
 
-export default function Library({ games }: { games: Game[] }) {
+export default function Library({
+  games,
+  bestById,
+}: {
+  games: Game[];
+  bestById: Record<string, number>;
+}) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<CatFilter>("TODOS");
 
@@ -45,7 +51,7 @@ export default function Library({ games }: { games: Game[] }) {
 
       <div className="av-grid">
         {filtered.map((g) => (
-          <GameCard key={g.id} game={g} />
+          <GameCard key={g.id} game={g} best={bestById[g.id] ?? 0} />
         ))}
         {filtered.length === 0 && (
           <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 80, color: "var(--ink-faint)" }}>

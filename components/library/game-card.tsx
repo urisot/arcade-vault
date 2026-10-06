@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, type MouseEvent } from "react";
 import type { Game } from "@/lib/data/games";
 
-export default function GameCard({ game }: { game: Game }) {
+export default function GameCard({ game, best }: { game: Game; best: number }) {
   const tiltRef = useRef<HTMLAnchorElement>(null);
 
   const onMove = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -44,7 +44,7 @@ export default function GameCard({ game }: { game: Game }) {
         <div className="row">
           <div className="score-badge">
             <span>MEJOR PUNTUACIÓN</span>
-            <b>{game.best.toLocaleString("es-ES")}</b>
+            <b>{best.toLocaleString("es-ES")}</b>
           </div>
           <span className={"btn " + buttonColor}>JUGAR</span>
         </div>
