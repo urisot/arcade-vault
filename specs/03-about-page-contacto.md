@@ -18,7 +18,7 @@
 - Validación compartida cliente y servidor en `lib/contact.ts`.
 - Función de envío en `lib/send-contact-email.ts`, que solo se ejecuta en el servidor.
 - Dependencia `resend` en `package.json` y `package-lock.json`.
-- Variables de entorno documentadas en `.env.example`.
+- Variables de entorno documentadas en `.env.template`, el archivo que ya existe en el repo.
 - Enlace "Acerca de" en la barra global (`components/nav.tsx`), en escritorio y en el menú móvil, apuntando a `/acerca`.
 - Bloque "ABOUT PAGE" de `references/resources/templates/home-about/styles.css` copiado al final de `app/globals.css`, junto con las clases base que falten.
 
@@ -71,7 +71,7 @@ Conventions:
 
 ## Plan de implementación
 
-1. **Dependencia y variables.** Instalar `resend` con `npm install resend`. Crear `.env.example` con `RESEND_API_KEY=`, `CONTACT_TO_EMAIL=` y `RESEND_FROM=`. Verificación: `npm run build` pasa y `package.json` lista `resend`.
+1. **Dependencia y variables.** Instalar `resend` con `npm install resend`. Añadir a `.env.template` las variables `RESEND_API_KEY=XXXX`, `CONTACT_TO_EMAIL=XXXX` y `RESEND_FROM=XXXX`, con el marcador `XXXX` que ya usa el archivo. No crear un archivo nuevo. Verificación: `npm run build` pasa y `package.json` lista `resend`.
 2. **Validación compartida.** Crear `lib/contact.ts` con `validateContact`. No importa nada de `react` ni de `resend`. Verificación: `npx tsc --noEmit` pasa.
 3. **Envío de correo.** Crear `lib/send-contact-email.ts` con una función que recibe un `ContactMessage`, crea el cliente de Resend y envía el correo con `text`, `replyTo` y el asunto indicado. Lanza error si falta `RESEND_API_KEY` o `CONTACT_TO_EMAIL`. Verificación: `npx tsc --noEmit` pasa.
 4. **Route handler.** Crear `app/api/contact/route.ts` con `POST`. Lee el JSON, llama a `validateContact` y responde 400 con `{ ok: false, error: "invalid", errors }` si falla. Si valida, llama a `sendContactEmail`: responde 200 con `{ ok: true }`, o 500 con `{ ok: false, error: "send_failed" }` si lanza error (el detalle va al log del servidor, no a la respuesta). Verificación: `npm run dev` y `curl -X POST localhost:3000/api/contact -H "Content-Type: application/json" -d "{}"` responde 400.
@@ -110,7 +110,7 @@ Cada paso deja la aplicación construible. El último paso no es "probar todo"; 
 - [ ] `lib/contact.ts` no importa nada de `react` ni de `resend`.
 - [ ] `lib/send-contact-email.ts` es el único archivo que importa `resend`.
 - [ ] Ninguna clave aparece en el código fuera de `process.env`, y `.env.local` está en `.gitignore`.
-- [ ] Ningún archivo fuera de `app/`, `components/`, `lib/`, `specs/`, `.env.example` y `package.json`/`package-lock.json` cambia.
+- [ ] Ningún archivo fuera de `app/`, `components/`, `lib/`, `specs/`, `.env.template` y `package.json`/`package-lock.json` cambia.
 
 ---
 
@@ -133,7 +133,7 @@ Cada paso deja la aplicación construible. El último paso no es "probar todo"; 
 - **Sí: estilos en `app/globals.css`.** Es el mismo criterio de SPEC 02 para el home. Evita un segundo sistema de estilos.
 - **Sí: `useReveal` existente.** Ya implementa el mismo `IntersectionObserver` del template. No se duplica la lógica.
 - **Sí: copiar el JSX del template sin rediseño.** `CLAUDE.md` pide `frontend-design` para UI nueva. Aquí no hay UI nueva: el diseño ya viene del template, así que no aplica.
-- **Sí: `.env.example` fuera de las carpetas habituales.** Documenta las variables necesarias sin exponer valores. Es la única excepción de archivos nuevos fuera de `app/`, `components/` y `lib/`.
+- **Sí: variables documentadas en `.env.template`.** Es el archivo de variables que ya existe en el repo. Documenta las variables necesarias sin exponer valores. No se crea ningún archivo nuevo fuera de `app/`, `components/` y `lib/`.
 
 ---
 
@@ -141,7 +141,7 @@ Cada paso deja la aplicación construible. El último paso no es "probar todo"; 
 
 | Riesgo | Mitigación |
 | --- | --- |
-| Con `onboarding@resend.dev` Resend solo entrega al correo dueño de la cuenta. Un mensaje a otro destinatario falla en silencio para la persona. | En desarrollo, `CONTACT_TO_EMAIL` debe ser el correo de la cuenta de Resend. Para producción, `RESEND_FROM` con dominio verificado. Se documenta en `.env.example`. |
+| Con `onboarding@resend.dev` Resend solo entrega al correo dueño de la cuenta. Un mensaje a otro destinatario falla en silencio para la persona. | En desarrollo, `CONTACT_TO_EMAIL` debe ser el correo de la cuenta de Resend. Para producción, `RESEND_FROM` con dominio verificado. Se documenta en `.env.template`. |
 | Sin protección anti-spam, el formulario público recibe bots. | Aceptado para este MVP. Límites de longitud reducen el daño. Va en spec propia si el volumen lo exige. |
 | La clave `RESEND_API_KEY` se filtra si alguien la importa en un componente cliente. | Solo `lib/send-contact-email.ts` y el route handler la usan. Ningún componente cliente importa esos archivos. |
 | `.reveal` empieza en `opacity: 0`. Sin JavaScript, las secciones no se ven. | Mismo riesgo aceptado en SPEC 02. El hero y la barra no dependen del revelado. |

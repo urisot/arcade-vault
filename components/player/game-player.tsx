@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Game } from "@/lib/data/games";
-import { saveScore } from "@/lib/saved-scores";
+import type { ScoreResponse } from "@/lib/scores";
 import { useSessionUser } from "@/lib/use-session-user";
 
 // Reproductor sin lógica de juego: HUD estático, arena vacía y puntuación 0.
@@ -13,6 +13,8 @@ export default function GamePlayer({ game }: { game: Game }) {
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   const score = 0;
   const name = nameDraft ?? user?.name ?? "INVITADO";
@@ -21,11 +23,30 @@ export default function GamePlayer({ game }: { game: Game }) {
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaveFailed(false);
   };
 
-  const save = () => {
-    saveScore({ game: game.id, score, name });
-    setSaved(true);
+  // La puntuación sigue en memoria si falla: REINTENTAR la envía de nuevo
+  const save = async () => {
+    setSaving(true);
+    setSaveFailed(false);
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game: game.id, score, name }),
+      });
+      const body = (await res.json()) as ScoreResponse;
+      if (body.ok) {
+        setSaved(true);
+      } else {
+        setSaveFailed(true);
+      }
+    } catch {
+      setSaveFailed(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -99,7 +120,14 @@ export default function GamePlayer({ game }: { game: Game }) {
                   onChange={(e) => setNameDraft(e.target.value.toUpperCase().slice(0, 10))}
                   placeholder="TUS INICIALES"
                 />
-                <button className="btn yellow" onClick={save}>GUARDAR PUNTUACIÓN</button>
+                <button className="btn yellow" onClick={save} disabled={saving}>
+                  {saveFailed ? "REINTENTAR" : "GUARDAR PUNTUACIÓN"}
+                </button>
+                {saveFailed && (
+                  <div className="mono" style={{ color: "var(--magenta)", fontSize: 11, letterSpacing: "0.12em" }}>
+                    [ERROR] NO SE PUDO GUARDAR
+                  </div>
+                )}
               </div>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>

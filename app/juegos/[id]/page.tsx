@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GAMES } from "@/lib/data/games";
-import { seededScores } from "@/lib/data/scores";
+import { getGame } from "@/lib/games";
+import { getTopScores } from "@/lib/scores-db";
+
+// Las lecturas de Supabase se cachean un minuto: los cambios aparecen en 60 s
+export const revalidate = 60;
 
 export default async function GameDetailPage({
   params,
@@ -9,10 +12,10 @@ export default async function GameDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getTopScores(id, 10);
 
   return (
     <div className="av-detail fade-in">
@@ -61,9 +64,14 @@ export default async function GameDetailPage({
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && (
+            <div className="mono" style={{ padding: "16px 0", color: "var(--ink-faint)", letterSpacing: "0.12em" }}>
+              SIN PUNTUACIONES AÚN
+            </div>
+          )}
           {scores.map((r, i) => (
             <div
-              key={r.name}
+              key={r.rank}
               className={"lb-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")}
             >
               <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
