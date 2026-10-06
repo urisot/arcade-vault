@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   if (saved.ok) {
     // Marca el salón y el detalle del juego para que la fila nueva aparezca en la siguiente visita
     revalidatePath("/salon");
+    revalidatePath("/games");
     revalidatePath("/juegos/[id]", "page");
     return Response.json({ ok: true });
   }
