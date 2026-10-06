@@ -1,9 +1,18 @@
 // Validación de puntuaciones, compartida por el reproductor y la ruta /api/scores.
 // No importa nada de react ni de supabase.
+import type { Category } from "@/lib/data/games";
+
 export type ScoreInput = { game: string; name: string; score: number };
 export type ScoreErrors = Partial<Record<keyof ScoreInput, string>>;
 
 export const SCORE_LIMITS = { name: 10, score: 99999999 } as const;
+
+const CATEGORIES: Category[] = ["ARCADE", "PUZZLE", "SHOOTER", "VERSUS"];
+
+// Devuelve la categoría si es válida; null significa TODAS (sin filtro).
+export function validateCategory(value: unknown): Category | null {
+  return CATEGORIES.find((cat) => cat === value) ?? null;
+}
 
 // Respuesta de POST /api/scores
 export type ScoreResponse =

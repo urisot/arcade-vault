@@ -1,4 +1,5 @@
-import type { ScoreRow } from "@/lib/data/scores";
+import type { BestScoreRow, GlobalRow } from "@/lib/data/scores";
+import type { Category } from "@/lib/data/games";
 import type { ScoreInput } from "@/lib/scores";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { publicClient } from "@/lib/supabase/public";
@@ -13,15 +14,16 @@ function formatDate(iso: string): string {
   return `${dd}/${mm}/${d.getUTCFullYear()}`;
 }
 
-export async function getTopScores(gameId: string, limit = 10): Promise<ScoreRow[]> {
+// Mejor partida de cada nombre en el juego, desde la vista best_scores (ver migración leaderboard)
+export async function getBestScores(gameId: string, limit = 10): Promise<BestScoreRow[]> {
   const { data, error } = await publicClient
-    .from("scores")
+    .from("best_scores")
     .select("name, score, created_at")
     .eq("game_id", gameId)
     .order("score", { ascending: false })
     .order("created_at", { ascending: true })
     .limit(limit);
-  if (error) throw new Error(`No se pudieron leer las puntuaciones de ${gameId}: ${error.message}`);
+  if (error) throw new Error(`No se pudo leer el ranking de ${gameId}: ${error.message}`);
 
   return data.map((row, i) => ({
     rank: i + 1,
@@ -31,14 +33,40 @@ export async function getTopScores(gameId: string, limit = 10): Promise<ScoreRow
   }));
 }
 
-export async function getTopScoresByGame(limit = 10): Promise<Record<string, ScoreRow[]>> {
-  const { data, error } = await publicClient.from("games").select("id");
-  if (error) throw new Error(`No se pudo leer el catálogo: ${error.message}`);
+// Partidas totales y mejor score real del juego, calculados desde scores (no desde el catálogo)
+export type GameStats = { plays: number; best: number };
 
-  const entries = await Promise.all(
-    data.map(async (game) => [game.id, await getTopScores(game.id, limit)] as const),
-  );
-  return Object.fromEntries(entries);
+export async function getGameStats(gameId: string): Promise<GameStats> {
+  const [count, top] = await Promise.all([
+    publicClient.from("scores").select("id", { count: "exact", head: true }).eq("game_id", gameId),
+    publicClient
+      .from("scores")
+      .select("score")
+      .eq("game_id", gameId)
+      .order("score", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  if (count.error) throw new Error(`No se pudo contar las partidas de ${gameId}: ${count.error.message}`);
+  if (top.error) throw new Error(`No se pudo leer la mejor puntuación de ${gameId}: ${top.error.message}`);
+
+  return { plays: count.count ?? 0, best: top.data?.score ?? 0 };
+}
+
+// Suma de mejores scores por nombre. cat null = TODAS las categorías.
+export async function getGlobalRanking(cat: Category | null, limit = 10): Promise<GlobalRow[]> {
+  const { data, error } = await publicClient.rpc("global_ranking", {
+    p_cat: cat,
+    p_limit: limit,
+  });
+  if (error) throw new Error(`No se pudo leer el ranking global: ${error.message}`);
+
+  const rows: { name: string; total: number }[] = data;
+  return rows.map((row, i) => ({
+    rank: i + 1,
+    name: row.name,
+    total: row.total,
+  }));
 }
 
 export type InsertScoreResult = { ok: true } | { ok: false; error: "invalid" | "db_failed" };
