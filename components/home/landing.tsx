@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { GAMES } from "@/lib/data/games";
+import type { Game } from "@/lib/data/games";
 import {
   ACTIVITY,
   FAQS,
@@ -16,7 +16,7 @@ import Silhouettes from "./silhouettes";
 import { useReveal } from "./use-reveal";
 
 // Landing de `/`. Cliente porque usa useReveal (IntersectionObserver).
-export default function Landing() {
+export default function Landing({ games }: { games: Game[] }) {
   useReveal();
 
   return (
@@ -79,7 +79,7 @@ export default function Landing() {
           <div className="section-rule"></div>
         </div>
         <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
+          {games.slice(0, 6).map((g) => (
             <MiniCard key={g.id} game={g} />
           ))}
         </div>
