@@ -1,11 +1,16 @@
 import HallOfFame from "@/components/hall/hall-of-fame";
-import { getGames } from "@/lib/games";
-import { getTopScoresByGame } from "@/lib/scores-db";
+import { validateCategory } from "@/lib/scores";
+import { getGlobalRanking } from "@/lib/scores-db";
 
-// Las lecturas de Supabase se cachean un minuto: una puntuación nueva aparece en 60 s
-export const revalidate = 60;
-
-export default async function SalonPage() {
-  const [games, scoresByGame] = await Promise.all([getGames(), getTopScoresByGame(10)]);
-  return <HallOfFame games={games} scoresByGame={scoresByGame} />;
+// Sin revalidate: la página depende de ?cat= y se lee en cada visita. Las puntuaciones nuevas
+// se ven al instante porque POST /api/scores llama a revalidatePath("/salon").
+export default async function SalonPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cat?: string | string[] }>;
+}) {
+  const { cat } = await searchParams;
+  const category = validateCategory(cat);
+  const rows = await getGlobalRanking(category, 10);
+  return <HallOfFame category={category} rows={rows} />;
 }

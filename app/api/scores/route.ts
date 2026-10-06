@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { validateScore } from "@/lib/scores";
 import { insertScore } from "@/lib/scores-db";
 
@@ -12,6 +13,9 @@ export async function POST(request: Request) {
 
   const saved = await insertScore(result.data);
   if (saved.ok) {
+    // Marca el salón y el detalle del juego para que la fila nueva aparezca en la siguiente visita
+    revalidatePath("/salon");
+    revalidatePath("/juegos/[id]", "page");
     return Response.json({ ok: true });
   }
 

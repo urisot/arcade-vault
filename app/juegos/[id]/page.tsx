@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGame } from "@/lib/games";
-import { getTopScores } from "@/lib/scores-db";
-
-// Las lecturas de Supabase se cachean un minuto: los cambios aparecen en 60 s
-export const revalidate = 60;
+import { getBestScores, getGameStats } from "@/lib/scores-db";
 
 export default async function GameDetailPage({
   params,
@@ -15,7 +12,7 @@ export default async function GameDetailPage({
   const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = await getTopScores(id, 10);
+  const [scores, stats] = await Promise.all([getBestScores(id, 10), getGameStats(id)]);
 
   return (
     <div className="av-detail fade-in">
@@ -35,12 +32,12 @@ export default async function GameDetailPage({
           <div className="stat-strip">
             <div>
               <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
+              <div className="v">{stats.plays.toLocaleString("es-ES")}</div>
             </div>
             <div>
               <div className="l">Mejor global</div>
               <div className="v" style={{ color: "var(--magenta)", textShadow: "0 0 6px rgba(255,0,110,0.5)" }}>
-                {game.best.toLocaleString("es-ES")}
+                {stats.best.toLocaleString("es-ES")}
               </div>
             </div>
             <div>
