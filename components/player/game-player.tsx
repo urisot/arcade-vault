@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Game } from "@/lib/data/games";
+import type { GameSnapshot } from "@/lib/games/asteroids/engine";
 import type { ScoreResponse } from "@/lib/scores";
 import { useSessionUser } from "@/lib/use-session-user";
+import AsteroidsCanvas from "@/components/player/asteroids-canvas";
 
-// Reproductor sin lógica de juego: HUD estático, arena vacía y puntuación 0.
+const ASTEROIDS_ID = "asteroides";
+
+const INITIAL_SNAPSHOT: GameSnapshot = { score: 0, lives: 3, level: 1, status: "playing" };
+
+// Reproductor. Asteroids corre dentro de AsteroidsCanvas; los demás juegos siguen con el HUD estático.
 export default function GamePlayer({ game }: { game: Game }) {
   const { user } = useSessionUser();
   const [nameDraft, setNameDraft] = useState<string | null>(null);
@@ -16,12 +22,28 @@ export default function GamePlayer({ game }: { game: Game }) {
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
-  const score = 0;
+  // Asteroids: el juego notifica sus cambios y React manda comandos con contadores
+  const isAsteroids = game.id === ASTEROIDS_ID;
+  const [snapshot, setSnapshot] = useState<GameSnapshot>(INITIAL_SNAPSHOT);
+  const [endRequest, setEndRequest] = useState(0);
+  const [restartRequest, setRestartRequest] = useState(0);
+  const handleChange = useCallback((s: GameSnapshot) => setSnapshot(s), []);
+
+  const score = isAsteroids ? snapshot.score : 0;
+  const lives = isAsteroids ? snapshot.lives : 3;
+  const level = isAsteroids ? snapshot.level : 1;
+  const isOver = isAsteroids ? snapshot.status === "gameover" : over;
   const name = nameDraft ?? user?.name ?? "INVITADO";
+
+  const finish = () => {
+    if (isAsteroids) setEndRequest((n) => n + 1);
+    else setOver(true);
+  };
 
   const restart = () => {
     setPaused(false);
     setOver(false);
+    if (isAsteroids) setRestartRequest((n) => n + 1);
     setSaved(false);
     setSaveFailed(false);
   };
@@ -63,31 +85,40 @@ export default function GamePlayer({ game }: { game: Game }) {
           </div>
           <div className="hud-stat lives">
             <div className="l">Vidas</div>
-            <div className="v">♥ ♥ ♥</div>
+            <div className="v">{isAsteroids ? Array.from({ length: lives }, () => "♥").join(" ") : "♥ ♥ ♥"}</div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
-            <div className="v">01</div>
+            <div className="v">{String(level).padStart(2, "0")}</div>
           </div>
         </div>
         <div className="hud-actions">
           <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
-          <button className="btn magenta" onClick={() => setOver(true)}>FIN</button>
+          <button className="btn magenta" onClick={finish}>FIN</button>
           <Link href={`/juegos/${game.id}`} className="btn ghost">SALIR</Link>
         </div>
       </div>
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor"></div>
-            <div className="enemy e1"></div>
-            <div className="enemy e2"></div>
-            <div className="enemy e3"></div>
-            <div className="player-ship"></div>
-          </div>
+          {isAsteroids ? (
+            <AsteroidsCanvas
+              paused={paused}
+              endRequest={endRequest}
+              restartRequest={restartRequest}
+              onChange={handleChange}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor"></div>
+              <div className="enemy e1"></div>
+              <div className="enemy e2"></div>
+              <div className="enemy e3"></div>
+              <div className="player-ship"></div>
+            </div>
+          )}
           {paused && (
             <div className="crt-content" style={{ background: "rgba(0,0,0,0.6)", zIndex: 5 }}>
               <div>
@@ -106,7 +137,7 @@ export default function GamePlayer({ game }: { game: Game }) {
         </div>
       </div>
 
-      {over && (
+      {isOver && (
         <div className="modal-bd">
           <div className="modal">
             <h2>FIN DEL JUEGO</h2>

@@ -667,6 +667,13 @@ a { color: inherit; text-decoration: none; }
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
 
+/* Canvas real de Asteroids: llena la pantalla CRT y conserva 800×600 (4:3, igual que .crt-screen) */
+.asteroids-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* fake in-screen game */
 .game-arena {
   position: absolute; inset: 0;
