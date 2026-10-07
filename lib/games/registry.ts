@@ -4,6 +4,7 @@
 import type { ComponentType } from "react";
 import AsteroidsCanvas from "@/components/player/asteroids-canvas";
 import TetrisCanvas from "@/components/player/tetris-canvas";
+import ArkanoidCanvas from "@/components/player/arkanoid-canvas";
 import type { GameSnapshot } from "@/lib/games/types";
 
 // Comandos de React hacia la superficie. Ver SPEC 05.
@@ -22,4 +23,5 @@ export type Surface = {
 export const SURFACES: Record<string, Surface> = {
   asteroides: { Canvas: AsteroidsCanvas, showLives: true },
   tetris: { Canvas: TetrisCanvas, showLives: false },
+  arkanoid: { Canvas: ArkanoidCanvas, showLives: true },
 };

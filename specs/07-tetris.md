@@ -1,6 +1,6 @@
 # SPEC 07 — Tetris jugable en el reproductor
 
-> **Estado:** Aprobado
+> **Estado:** implementado
 > **Depende de:** SPEC 04, SPEC 05, SPEC 06
 > **Fecha:** 2026-10-06
 > **Objetivo:** Portar el Tetris de `references/started-games/03-tetris/` a un componente React jugable en `/juegos/tetris/jugar`, con la puntuación guardada en Supabase al terminar la partida.
