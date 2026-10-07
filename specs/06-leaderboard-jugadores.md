@@ -1,6 +1,6 @@
 # SPEC 06 — Leaderboard por jugador y por juego
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 04
 > **Fecha:** 2026-10-05
 > **Objetivo:** Mostrar un ranking por juego en `/juegos/[id]` y un ranking global por jugador en `/salon`, contando cada nombre una vez por juego con su mejor partida.
