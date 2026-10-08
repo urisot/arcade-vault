@@ -165,6 +165,7 @@ export default function GamePlayer({ game }: { game: Game }) {
             )}
             <div className="actions">
               <button className="btn" onClick={restart}>JUGAR DE NUEVO</button>
+              <Link href={`/juegos/${game.id}`} className="btn yellow">VER PUNTUACIONES</Link>
               <Link href="/" className="btn magenta">VOLVER AL VAULT</Link>
             </div>
           </div>
